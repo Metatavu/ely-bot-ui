@@ -12,7 +12,7 @@ import { Provider } from 'react-redux';
 import Api from "metamind-client";
 
 const store = createStore<StoreState, BotAction, any, any>(processAction, {
-  messages: [],
+  messageDatas: [],
   conversationStarted: false
 });
 

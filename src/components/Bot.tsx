@@ -4,7 +4,7 @@ import MessageList from "./MessageList";
 import Api, { Session, Message } from "metamind-client";
 
 import * as actions from "../actions/";
-import { StoreState } from "../types/index";
+import { StoreState, MessageData } from "../types/index";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 
@@ -16,10 +16,10 @@ interface Props {
   locale: string,
   timeZone: string,
   visitor: string,
-  messages?: Message[],
+  messageDatas?: MessageData[],
   conversationStarted: boolean,
   onBotConnected?: (session: Session) => void
-  onBotResponse?: (message: Message) => void
+  onBotResponse?: (message: MessageData) => void
   onBotReset?: () => void,
   startConversation?: () => void
 }
@@ -40,27 +40,10 @@ class Bot extends React.Component<Props, State> {
 
   public componentDidMount() {
     this.getSession();
-    /**
-    if (!this.props.session) {
-      this.metamindClient.getSession().then((session: Session) => {
-        this.props.onBotConnected && this.props.onBotConnected(session);
-      }).catch((err) => {
-      });
-    } */
   }
 
   public componentDidUpdate(prevProps: Props) {
     this.getSession();
-    /**
-    if (!this.props.session) {
-      this.metamindClient.getSession().then((session: Session) => {
-        this.props.onBotConnected && this.props.onBotConnected(session);
-      });
-    }
-
-    if (!prevProps.session && this.props.session) {
-      this.sendMessage("INIT");
-    }*/
   }
 
   public render = () => {
@@ -73,7 +56,9 @@ class Bot extends React.Component<Props, State> {
         ) : (
           <MessageList 
             conversationStarted={this.props.conversationStarted} 
-            messages={this.props.messages || []}
+            messageDatas={this.props.messageDatas || []}
+            hint={"Say something..."} // TODO
+            quickResponses={[]} // TODO
             startConversation={this.beginConversation}
             onSendMessage={this.sendMessage}
             onReset={this.resetBot}
@@ -82,7 +67,7 @@ class Bot extends React.Component<Props, State> {
       </Grid>
     );
   }
-
+  
   private sendMessage = async (messageContent: string) => {
     if (!this.state.session) {
       return;
@@ -96,7 +81,7 @@ class Bot extends React.Component<Props, State> {
       sourceKnotId: ""
     }, this.props.storyId);
 
-    this.props.onBotResponse && this.props.onBotResponse(message);
+    await this.processBotResponse(message);
   }
 
   private async getSession(): Promise<Session> {
@@ -120,9 +105,49 @@ class Bot extends React.Component<Props, State> {
       session: session
     });
 
-    this.props.onBotResponse && this.props.onBotResponse(initMessage);
-
+    await this.processBotResponse(initMessage);
     return session;
+  }
+
+  private async processBotResponse(message: Message) {
+    this.props.onBotResponse && this.props.onBotResponse({
+      id: `${message.id}-message`,
+      isBot: false,
+      content: message.content || ""
+    });
+
+    const responses = message.response;
+
+    if (responses) {
+      for (let i = 0; i < responses.length; i++) {
+        const response = responses[i];
+
+        this.props.onBotResponse && this.props.onBotResponse({
+          id: `${message.id}-response-${i}`,
+          isBot: true,
+          content: response
+        });
+
+        if (i < (responses.length - 1)) {  
+          this.props.onBotResponse && this.props.onBotResponse({
+            id: `temp-${message.id}-response-${i + 1}`,
+            isBot: true,
+            content: ""
+          });
+
+          await this.waitAsync(500 + (Math.random() * 1000));
+        }
+      }
+
+    }
+  }
+
+  private waitAsync(timeout: number) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, timeout);
+    });
   }
 
   private beginConversation = () => {
@@ -137,7 +162,7 @@ class Bot extends React.Component<Props, State> {
 export function mapStateToProps(state: StoreState) {
   return {
     session: state.session,
-    messages: state.messages,
+    messageDatas: state.messageDatas,
     conversationStarted: state.conversationStarted
   }
 }
@@ -145,7 +170,7 @@ export function mapStateToProps(state: StoreState) {
 export function mapDispatchToProps(dispatch: Dispatch<actions.BotAction>) {
   return {
     onBotConnected: (session: Session) => dispatch(actions.botConnected(session)),
-    onBotResponse: (message: Message) => dispatch(actions.botResponse(message)),
+    onBotResponse: (messageData: MessageData) => dispatch(actions.botResponse(messageData)),
     startConversation: () => dispatch(actions.conversationStart()),
     onBotReset: () => dispatch(actions.BotReset())
   };

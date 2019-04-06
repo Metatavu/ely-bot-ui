@@ -1,7 +1,13 @@
-import { Message, Session } from "metamind-client";
+import { Session } from "metamind-client";
 
 export interface StoreState {
-  messages: Message[],
+  messageDatas: MessageData[],
   session: Session | undefined,
   conversationStarted: boolean
+}
+
+export interface MessageData {
+  id: string,
+  isBot: boolean,
+  content: string
 }

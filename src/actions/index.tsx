@@ -1,5 +1,6 @@
 import * as constants from '../constants'
-import { Session, Message } from 'metamind-client';
+import { Session } from 'metamind-client';
+import { MessageData } from 'src/types';
 
 export interface BotConnected {
   type: constants.BOT_CONNECTED
@@ -8,7 +9,7 @@ export interface BotConnected {
 
 export interface BotResponse {
   type: constants.BOT_RESPONSE
-  message: Message
+  messageData: MessageData
 }
 
 export interface BotReset {
@@ -40,9 +41,9 @@ export function botConnected(session: Session): BotConnected {
   }
 }
 
-export function botResponse(message: Message): BotResponse {
+export function botResponse(messageData: MessageData): BotResponse {
   return {
     type: constants.BOT_RESPONSE,
-    message: message
+    messageData: messageData
   }
 }

@@ -8,11 +8,11 @@ export function processAction(state: StoreState, action: BotAction): StoreState 
     case BOT_CONNECTED:
       return { ...state, session: action.session};
     case BOT_RESPONSE:
-      return { ...state, messages: state.messages.concat([action.message])};
+      return { ...state, messageDatas: state.messageDatas.filter((messageData) => !messageData.id.startsWith("temp")).concat([action.messageData])};
     case CONVERSATION_START:
       return { ...state, conversationStarted: true};
     case BOT_RESET:
-      return {...state, session: undefined, messages: [], conversationStarted: false}
+      return {...state, session: undefined, messageDatas: [], conversationStarted: false}
   }
   return state;
 }

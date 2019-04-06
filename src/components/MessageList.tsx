@@ -14,20 +14,16 @@ import {
 } from "semantic-ui-react";
 
 import 'react-image-lightbox/style.css';
-import { Message } from "metamind-client";
+import { MessageData } from "../types";
 
 export interface Props {
-  messages: Message[],
+  messageDatas: MessageData[],
+  quickResponses: string[],
+  hint: string,
   conversationStarted: boolean
   startConversation: () => void
   onSendMessage: (messageContent: string) => void
   onReset: () => void
-}
-
-export interface MessageData {
-  id: string,
-  isBot: boolean,
-  content: string
 }
 
 export interface State {
@@ -95,14 +91,6 @@ class MessageList extends React.Component<Props, State> {
     this.addNewMessage(this.state.pendingMessage);
   }
 
-  getLatestMessage = (): Message | undefined => {
-    if (this.props.messages.length < 1) {
-      return undefined;
-    }
-
-    return this.props.messages[this.props.messages.length - 1];
-  }
-
   sendQuickReply = (reply: string) => {
     this.addNewMessage(reply);
   }
@@ -113,32 +101,6 @@ class MessageList extends React.Component<Props, State> {
     }
 
     this.messagesEnd.scrollIntoView({ behavior: "smooth" });
-  }
-
-  private updateMessageDatas = async () => {
-    const messageDatas: MessageData[] = [];
-
-    this.props.messages.forEach((message) => {
-      messageDatas.push({
-        id: `${message.id}-message`,
-        isBot: false,
-        content: message.content || ""
-      });
-
-      if (message.response) {
-        message.response.forEach((response, index) => {
-          messageDatas.push({
-            id: `${message.id}-response-${index}`,
-            isBot: true,
-            content: response
-          });    
-        });
-      }
-    });
-
-    this.setState({
-      messageDatas: messageDatas
-    });
   }
 
   handleInputKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -167,10 +129,9 @@ class MessageList extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-
-    if (prevProps.messages.length < this.props.messages.length) {
-      this.updateMessageDatas();
+    if (JSON.stringify(prevProps.messageDatas) !== JSON.stringify(this.props.messageDatas)) {
       this.setState({
+        messageDatas: this.props.messageDatas,
         waitingForBot: false
       });
     }
@@ -184,7 +145,7 @@ class MessageList extends React.Component<Props, State> {
     });
   }
 
-  render() {
+  public render() {
 
     const messageItems = this.state.messageDatas.map((messageData) => {
       if (messageData.isBot) {
@@ -243,9 +204,7 @@ class MessageList extends React.Component<Props, State> {
       }
     });
 
-    const latestMessage = this.getLatestMessage();
-    const quickReplies = latestMessage && latestMessage.quickResponses ? latestMessage.quickResponses : [];
-    const quickReplyItems = quickReplies.map((quickReply: string) => {
+    const quickReplyItems = this.props.quickResponses.map((quickReply: string) => {
       return (
         <Button disabled={this.state.waitingForBot} style={{marginTop: "5px"}} key={quickReply} size="mini" floated="left" compact onClick={() => {this.sendQuickReply(quickReply)}} >{quickReply}</Button>
       )
@@ -260,7 +219,7 @@ class MessageList extends React.Component<Props, State> {
                 {messageItems}
               </Grid>
             </div>
-            { quickReplies.length > 0 && !this.state.waitingForBot &&
+            { this.props.quickResponses.length > 0 && !this.state.waitingForBot &&
               <div style={{paddingBottom: "5px", position: "fixed", left: "10px", bottom: "79px"}}>
                 {quickReplyItems}
               </div>
@@ -279,7 +238,7 @@ class MessageList extends React.Component<Props, State> {
                     </Grid.Column>
                     <Grid.Column style={{paddingRight: "15px"}}>
                       <Input
-                        placeholder={latestMessage && latestMessage.hint || "Say something..."}
+                        placeholder={ this.props.hint }
                         value={this.state.pendingMessage}
                         onChange={this.onPendingMessageChange}
                         onKeyPress={this.handleInputKeyPress}
