@@ -28,14 +28,18 @@ interface Props {
  * Component state
  */
 interface State {
-  session?: Session
+  session?: Session,
+  quickResponses: string[],
+  hint?: string
 }
 
 class Bot extends React.Component<Props, State> {
   
   constructor(props: Props) {
     super(props);
-    this.state = {};
+    this.state = {
+      quickResponses: []
+    };
   }
 
   public componentDidMount() {
@@ -55,13 +59,13 @@ class Bot extends React.Component<Props, State> {
           </div>
         ) : (
           <MessageList 
-            conversationStarted={this.props.conversationStarted} 
-            messageDatas={this.props.messageDatas || []}
-            hint={"Say something..."} // TODO
-            quickResponses={[]} // TODO
-            startConversation={this.beginConversation}
-            onSendMessage={this.sendMessage}
-            onReset={this.resetBot}
+            conversationStarted={ this.props.conversationStarted } 
+            messageDatas={ this.props.messageDatas || [] }
+            hint={ this.state.hint || "Say something..." }
+            quickResponses={ this.state.quickResponses }
+            startConversation={ this.beginConversation }
+            onSendMessage={ this.sendMessage }
+            onReset={ this.resetBot }
           />
         )}
       </Grid>
@@ -116,6 +120,11 @@ class Bot extends React.Component<Props, State> {
       content: message.content || ""
     });
 
+    this.setState({
+      quickResponses: message.quickResponses || [],
+      hint: message.hint
+    });
+
     const responses = message.response;
 
     if (responses) {
@@ -138,7 +147,6 @@ class Bot extends React.Component<Props, State> {
           await this.waitAsync(500 + (Math.random() * 1000));
         }
       }
-
     }
   }
 

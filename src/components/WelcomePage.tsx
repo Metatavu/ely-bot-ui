@@ -8,7 +8,7 @@ class WelcomePage extends React.Component<any, any> {
   render() {
     return (
       <BasicLayout>
-        <Bot storyId="3989e9f1-339b-43aa-a147-71e829973ad5" locale="fi" timeZone="Europe/Helsinki" visitor="From outerspace"/>
+        <Bot storyId="fe7f8564-080d-423d-b21a-01f9fba3a94d" locale="fi" timeZone="Europe/Helsinki" visitor="From outerspace"/>
       </BasicLayout>
     );
   }
