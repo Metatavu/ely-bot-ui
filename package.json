@@ -10,7 +10,7 @@
     "keycloak-js": "^5.0.0",
     "localized-strings": "0.2.1",
     "lodash": "^4.17.11",
-    "metamind-client": "^2.0.13",
+    "metamind-client": "^2.0.14",
     "node-sass": "^4.11.0",
     "node-sass-chokidar": "^1.3.4",
     "npm": "^6.9.0",
