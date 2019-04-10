@@ -220,7 +220,7 @@ class MessageList extends React.Component<Props, State> {
       <div>
         {this.state.imageOpen && <Lightbox mainSrc={this.state.clickedImageUrl || ""} onCloseRequest={() => this.setState({ imageOpen: false })} />}
           <div style={{paddingTop: "100px"}}>
-            <div style={{width: "600px", paddingBottom: "0"}}>
+            <div style={{width: "600px", paddingBottom: "50px"}}>
               <Grid style={{width: "100%"}}>
                 {messageItems}
               </Grid>
