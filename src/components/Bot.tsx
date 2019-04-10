@@ -2,7 +2,7 @@ import * as React from "react";
 import { Grid, Loader } from "semantic-ui-react";
 import MessageList from "./MessageList";
 import Api, { Session, Message } from "metamind-client";
-
+import linkifyHtml from 'linkifyjs/html';
 import * as actions from "../actions/";
 import { StoreState, MessageData } from "../types/index";
 import { connect } from "react-redux";
@@ -113,6 +113,34 @@ class Bot extends React.Component<Props, State> {
     return session;
   }
 
+  /**
+   * Builds response messages
+   * 
+   * @param responses Bot response array
+   */
+  private buildResponseMessages(responses: string[]) {
+    let allResponses: string[] = [];
+    responses.forEach((response) => {
+      console.log(response);
+      allResponses = allResponses.concat(response.split(/\n\s*\n/));
+    });
+
+    return allResponses.map((responseText: string) => {
+      return linkifyHtml(responseText, {
+        defaultProtocol: "https",
+        nl2br: true,
+        target: {
+          url: '_blank'
+        }
+      });
+    });
+  }
+
+  /**
+   * Processes bot response
+   * 
+   * @param message Message with bot response
+   */
   private async processBotResponse(message: Message) {
     this.props.onBotResponse && this.props.onBotResponse({
       id: `${message.id}-message`,
@@ -125,8 +153,7 @@ class Bot extends React.Component<Props, State> {
       hint: message.hint
     });
 
-    const responses = message.response;
-
+    const responses = this.buildResponseMessages(message.response || []);
     if (responses) {
       for (let i = 0; i < responses.length; i++) {
         const response = responses[i];
@@ -136,6 +163,8 @@ class Bot extends React.Component<Props, State> {
           isBot: true,
           content: response
         });
+
+        await this.waitAsync(700);
 
         if (i < (responses.length - 1)) {  
           this.props.onBotResponse && this.props.onBotResponse({

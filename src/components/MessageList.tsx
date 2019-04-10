@@ -11,6 +11,7 @@ import {
   Container,
   Icon,
   Popup,
+  Transition,
 } from "semantic-ui-react";
 
 import 'react-image-lightbox/style.css';
@@ -147,33 +148,38 @@ class MessageList extends React.Component<Props, State> {
 
   public render() {
 
-    const messageItems = this.state.messageDatas.map((messageData) => {
+    const messageItems = this.state.messageDatas.map((messageData, index) => {
       if (messageData.isBot) {
         return (
-          <Grid.Row key={messageData.id} verticalAlign="middle" textAlign="left" columns="equal">
+          <Grid.Row style={{paddingTop: "3px", paddingBottom: "3px"}} key={messageData.id} verticalAlign="middle" textAlign="left" columns="equal">
             <Grid.Column className="bot-response-container" onClick={this.handleResponseClick} floated="left" style={{paddingLeft: "0", color: "#fff"}}>
               { messageData.content ? 
-              <div 
-                style={{
-                  marginLeft: "10px",
-                  borderRadius: "10px",
-                  background: "#6eca09",
-                  display: "inline-block", 
-                  fontSize: "16px", 
-                  padding: "18px"
-                }}
-                dangerouslySetInnerHTML={{__html: messageData.content}}
-              /> : <div 
-                style={{
-                  marginLeft: "10px",
-                  borderRadius: "10px",
-                  background: "#6eca09",
-                  display: "inline-block", 
-                  fontSize: "16px", 
-                  padding: "18px"
-                }}> 
-                  <Typing/>
-                </div>
+              <Transition transitionOnMount={true} visible={true} animation="pulse" duration={200}>
+                <div 
+                  style={{
+                    animationTimingFunction: "easeInOutBack",
+                    marginLeft: "10px",
+                    borderRadius: "10px",
+                    background: "rgb(0,56,131)",
+                    display: "inline-block", 
+                    fontSize: "16px", 
+                    padding: "18px"
+                  }}
+                  dangerouslySetInnerHTML={{__html: messageData.content}}
+                />
+              </Transition> : <Transition transitionOnMount={true} visible={true} animation="slide down" duration={100}>
+                <div 
+                  style={{
+                    marginLeft: "10px",
+                    borderRadius: "10px",
+                    background: "rgb(0,56,131)",
+                    display: "inline-block", 
+                    fontSize: "16px", 
+                    padding: "18px"
+                  }}> 
+                    <Typing/>
+                  </div>
+                </Transition>
               }
             </Grid.Column>
             <Grid.Column mobile={2} width={4} floated="right" />
@@ -181,7 +187,7 @@ class MessageList extends React.Component<Props, State> {
         );
       } else {
         return(
-          <Grid.Row key={messageData.id} verticalAlign="middle" textAlign="right" columns="equal">
+          <Grid.Row style={{paddingTop: "25px", paddingBottom: "25px"}} key={messageData.id} verticalAlign="middle" textAlign="right" columns="equal">
             <Grid.Column mobile={2} width={4} floated="left" />
             <Grid.Column style={{paddingRight: "45px", color: "#fff"}} floated="right">
             { messageData.content !== "INIT" ? (
@@ -214,8 +220,8 @@ class MessageList extends React.Component<Props, State> {
       <div>
         {this.state.imageOpen && <Lightbox mainSrc={this.state.clickedImageUrl || ""} onCloseRequest={() => this.setState({ imageOpen: false })} />}
           <div style={{paddingTop: "100px"}}>
-            <div style={{maxWidth: "600px", paddingBottom: "0"}}>
-              <Grid>
+            <div style={{width: "600px", paddingBottom: "0"}}>
+              <Grid style={{width: "100%"}}>
                 {messageItems}
               </Grid>
             </div>
@@ -231,7 +237,7 @@ class MessageList extends React.Component<Props, State> {
                     <Grid.Column style={{paddingLeft: "0"}} width={1}>
                       <Popup
                         trigger={<Icon style={{color: "#fff"}} name="ellipsis vertical" />}
-                        content={<Button style={{background: "#6eca09", color: "#fff"}} onClick={this.props.onReset}>Aloita alusta</Button>}
+                        content={<Button style={{background: "rgb(0, 56,131)", color: "#fff"}} onClick={() => this.addNewMessage("Aloita alusta")}>Aloita alusta</Button>}
                         on='click'
                         position='top center'
                       />
@@ -247,7 +253,7 @@ class MessageList extends React.Component<Props, State> {
                         inverted />
                     </Grid.Column>
                     <Grid.Column style={{paddingLeft: "0"}} textAlign="left" mobile={3} computer={2} width={2}>
-                      <Button style={{background: "#6eca09", color: "#fff"}} disabled={this.state.waitingForBot} onClick={this.onSendButtonClick} size="huge" icon="send" circular></Button>
+                      <Button style={{background: "rgb(0, 56,131)", color: "#fff"}} disabled={this.state.waitingForBot} onClick={this.onSendButtonClick} size="huge" icon="send" circular></Button>
                     </Grid.Column>
                   </Grid.Row>
                 </Grid>

@@ -16,7 +16,7 @@ const store = createStore<StoreState, BotAction, any, any>(processAction, {
   conversationStarted: false
 });
 
-Api.configure("http://dev.metamind.fi:8080/v2");
+Api.configure("https://v2-api.metamind.fi/v2");
 
 ReactDOM.render(
   <Provider store={store}>
