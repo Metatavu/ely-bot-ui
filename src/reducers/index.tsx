@@ -1,6 +1,6 @@
 import { BotAction } from '../actions';
 import { StoreState } from '../types/index';
-import { BOT_CONNECTED, BOT_RESPONSE, CONVERSATION_START, BOT_RESET } from '../constants/index';
+import { BOT_CONNECTED, BOT_RESPONSE, CONVERSATION_START, BOT_RESET, BOT_INTERRUPTED } from '../constants/index';
 
 export function processAction(state: StoreState, action: BotAction): StoreState {
 
@@ -9,6 +9,8 @@ export function processAction(state: StoreState, action: BotAction): StoreState 
       return { ...state, session: action.session};
     case BOT_RESPONSE:
       return { ...state, messageDatas: state.messageDatas.filter((messageData) => !messageData.id.startsWith("temp")).concat([action.messageData])};
+    case BOT_INTERRUPTED:
+      return { ...state, messageDatas: state.messageDatas.filter((messageData) => !messageData.id.startsWith("temp"))}
     case CONVERSATION_START:
       return { ...state, conversationStarted: true};
     case BOT_RESET:

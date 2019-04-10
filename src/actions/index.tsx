@@ -16,15 +16,25 @@ export interface BotReset {
   type: constants.BOT_RESET
 }
 
+export interface BotInterrupted {
+  type: constants.BOT_INTERRUPTED
+}
+
 export interface ConversationStart {
   type: constants.CONVERSATION_START
 }
 
-export type BotAction = BotConnected | BotResponse | ConversationStart | BotReset
+export type BotAction = BotConnected | BotResponse | ConversationStart | BotReset | BotInterrupted
 
 export function BotReset (): BotReset {
   return {
     type: constants.BOT_RESET
+  }
+}
+
+export function BotInterrupted (): BotInterrupted {
+  return {
+    type: constants.BOT_INTERRUPTED
   }
 }
 

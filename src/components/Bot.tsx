@@ -21,6 +21,7 @@ interface Props {
   onBotConnected?: (session: Session) => void
   onBotResponse?: (message: MessageData) => void
   onBotReset?: () => void,
+  onBotInterrupt?: () => void,
   startConversation?: () => void
 }
 
@@ -30,15 +31,20 @@ interface Props {
 interface State {
   session?: Session,
   quickResponses: string[],
-  hint?: string
+  hint?: string,
+  pendingMessages: MessageData[]
+
 }
 
 class Bot extends React.Component<Props, State> {
   
+  private pendingMessageTimer: any;
+
   constructor(props: Props) {
     super(props);
     this.state = {
-      quickResponses: []
+      quickResponses: [],
+      pendingMessages: []
     };
   }
 
@@ -70,6 +76,36 @@ class Bot extends React.Component<Props, State> {
         )}
       </Grid>
     );
+  }
+
+  /**
+   * Progresses thru pending message queue
+   */
+  private messageQueueProgress = async () => {
+    if (this.pendingMessageTimer) {
+      clearTimeout(this.pendingMessageTimer);
+    }
+
+    const { pendingMessages } = this.state;
+    const message = pendingMessages.shift();
+    if (!message) {
+      return;
+    }
+
+    this.props.onBotResponse && this.props.onBotResponse(message);
+    if (pendingMessages.length > 0) {
+      await this.waitAsync(700);
+
+      this.props.onBotResponse && this.props.onBotResponse({
+        id: `temp-${message.id}`,
+        isBot: true,
+        content: ""
+      });
+    }
+
+    this.pendingMessageTimer = setTimeout(() => {
+      this.messageQueueProgress();
+    }, 500 + (Math.random() * 1000));
   }
   
   private sendMessage = async (messageContent: string) => {
@@ -121,7 +157,6 @@ class Bot extends React.Component<Props, State> {
   private buildResponseMessages(responses: string[]) {
     let allResponses: string[] = [];
     responses.forEach((response) => {
-      console.log(response);
       allResponses = allResponses.concat(response.split(/\n\s*\n/));
     });
 
@@ -150,32 +185,27 @@ class Bot extends React.Component<Props, State> {
 
     this.setState({
       quickResponses: message.quickResponses || [],
-      hint: message.hint
+      hint: message.hint,
+      pendingMessages: []
     });
 
     const responses = this.buildResponseMessages(message.response || []);
     if (responses) {
+      const pendingMessages = [];
       for (let i = 0; i < responses.length; i++) {
         const response = responses[i];
-
-        this.props.onBotResponse && this.props.onBotResponse({
+        pendingMessages.push({
           id: `${message.id}-response-${i}`,
           isBot: true,
           content: response
         });
-
-        await this.waitAsync(700);
-
-        if (i < (responses.length - 1)) {  
-          this.props.onBotResponse && this.props.onBotResponse({
-            id: `temp-${message.id}-response-${i + 1}`,
-            isBot: true,
-            content: ""
-          });
-
-          await this.waitAsync(500 + (Math.random() * 1000));
-        }
       }
+      this.setState({
+        pendingMessages: pendingMessages
+      });
+
+      this.props.onBotInterrupt && this.props.onBotInterrupt();
+      this.messageQueueProgress();
     }
   }
 
@@ -209,7 +239,8 @@ export function mapDispatchToProps(dispatch: Dispatch<actions.BotAction>) {
     onBotConnected: (session: Session) => dispatch(actions.botConnected(session)),
     onBotResponse: (messageData: MessageData) => dispatch(actions.botResponse(messageData)),
     startConversation: () => dispatch(actions.conversationStart()),
-    onBotReset: () => dispatch(actions.BotReset())
+    onBotReset: () => dispatch(actions.BotReset()),
+    onBotInterrupt: () => dispatch(actions.BotInterrupted())
   };
 }
 
