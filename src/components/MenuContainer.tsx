@@ -14,7 +14,7 @@ class MenuContainer extends React.Component<Props, object> {
     return (
       <Menu fixed="top" inverted>
         <Container>
-          <Image inline src={this.props.siteLogo} style={{ maxWidth: "200px", marginLeft: "15px", padding: "5px" }} />
+          <Image inline src={this.props.siteLogo} style={{ maxHeight: "76px", maxWidth: "200px", marginLeft: "15px", padding: "5px" }} />
         </Container>
       </Menu>
     );
