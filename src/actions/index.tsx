@@ -1,6 +1,6 @@
 import * as constants from '../constants'
 import { Session } from 'metamind-client';
-import { MessageData } from 'src/types';
+import { MessageData, AccessToken } from 'src/types';
 
 export interface BotConnected {
   type: constants.BOT_CONNECTED
@@ -24,7 +24,19 @@ export interface ConversationStart {
   type: constants.CONVERSATION_START
 }
 
-export type BotAction = BotConnected | BotResponse | ConversationStart | BotReset | BotInterrupted
+export interface AccessTokenUpdate {
+  type: constants.ACCESS_TOKEN_UPDATE,
+  accessToken: AccessToken
+}
+
+export type BotAction = BotConnected | BotResponse | ConversationStart | BotReset | BotInterrupted | AccessTokenUpdate
+
+export function accessTokenUpdate(accessToken: AccessToken): AccessTokenUpdate {
+  return {
+    type: constants.ACCESS_TOKEN_UPDATE,
+    accessToken: accessToken
+  }
+}
 
 export function BotReset (): BotReset {
   return {

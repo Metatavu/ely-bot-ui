@@ -1,6 +1,6 @@
 import { BotAction } from '../actions';
 import { StoreState } from '../types/index';
-import { BOT_CONNECTED, BOT_RESPONSE, CONVERSATION_START, BOT_RESET, BOT_INTERRUPTED } from '../constants/index';
+import { BOT_CONNECTED, BOT_RESPONSE, CONVERSATION_START, BOT_RESET, BOT_INTERRUPTED, ACCESS_TOKEN_UPDATE } from '../constants/index';
 
 export function processAction(state: StoreState, action: BotAction): StoreState {
 
@@ -15,6 +15,9 @@ export function processAction(state: StoreState, action: BotAction): StoreState 
       return { ...state, conversationStarted: true};
     case BOT_RESET:
       return {...state, session: undefined, messageDatas: [], conversationStarted: false}
+    case ACCESS_TOKEN_UPDATE:
+      const accessToken = action.accessToken;
+      return {...state, accessToken: accessToken };
   }
   return state;
 }
