@@ -12,3 +12,6 @@ export type CONVERSATION_START = typeof CONVERSATION_START;
 
 export const BOT_RESET = "BOT_RESET";
 export type BOT_RESET = typeof BOT_RESET;
+
+export const ACCESS_TOKEN_UPDATE = "ACCESS_TOKEN_UPDATE";
+export type ACCESS_TOKEN_UPDATE = typeof ACCESS_TOKEN_UPDATE;

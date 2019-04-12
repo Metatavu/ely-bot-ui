@@ -4,25 +4,28 @@ import MessageList from "./MessageList";
 import Api, { Session, Message } from "metamind-client";
 import linkifyHtml from 'linkifyjs/html';
 import * as actions from "../actions/";
-import { StoreState, MessageData } from "../types/index";
+import { StoreState, MessageData, AccessToken } from "../types/index";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
+import Auth from "src/utils/Auth";
 
 /**
  * Component props
  */
 interface Props {
-  storyId: string,
-  locale: string,
-  timeZone: string,
-  visitor: string,
-  messageDatas?: MessageData[],
-  conversationStarted: boolean,
+  storyId: string
+  locale: string
+  timeZone: string
+  visitor: string
+  messageDatas?: MessageData[]
+  conversationStarted: boolean
   onBotConnected?: (session: Session) => void
   onBotResponse?: (message: MessageData) => void
-  onBotReset?: () => void,
-  onBotInterrupt?: () => void,
+  onBotReset?: () => void
+  onBotInterrupt?: () => void
   startConversation?: () => void
+  onAccessTokenUpdate: (accessToken: AccessToken) => void
+  accessToken?: AccessToken
 }
 
 /**
@@ -109,13 +112,13 @@ class Bot extends React.Component<Props, State> {
   }
   
   private sendMessage = async (messageContent: string) => {
-    if (!this.state.session) {
+    if (!this.state.session || !this.props.accessToken) {
       return;
     }
 
     const session = await this.getSession();
 
-    const message = await Api.getMessagesService("").createMessage({
+    const message = await Api.getMessagesService(this.props.accessToken.access_token).createMessage({
       content: messageContent,
       sessionId: session.id!,
       sourceKnotId: ""
@@ -129,14 +132,25 @@ class Bot extends React.Component<Props, State> {
       return this.state.session;
     }
 
+    const accessToken = await Auth.login({
+      clientId: process.env.REACT_APP_AUTH_RESOURCE || "",
+      url: `${process.env.REACT_APP_AUTH_SERVER_URL}/realms/${process.env.REACT_APP_REALM}/protocol/openid-connect/token`,
+      username: process.env.REACT_APP_BOT_USER || "",
+      password: process.env.REACT_APP_BOT_PASS || "",
+      realmId: process.env.REACT_APP_REALM || ""
+    });
     
-    const session = await Api.getSessionsService("").createSession({
+    if (!accessToken) {
+      return Promise.reject();
+    }
+
+    const session = await Api.getSessionsService(accessToken.access_token).createSession({
       locale: this.props.locale,
       timeZone: this.props.timeZone,
       visitor: this.props.visitor
     }, this.props.storyId);
 
-    const initMessage = await Api.getMessagesService("").createMessage({
+    const initMessage = await Api.getMessagesService(accessToken.access_token).createMessage({
       content: "INIT",
       sessionId: session.id!
     }, this.props.storyId);
@@ -146,6 +160,7 @@ class Bot extends React.Component<Props, State> {
     });
 
     await this.processBotResponse(initMessage);
+    this.props.onAccessTokenUpdate(accessToken);
     return session;
   }
 
@@ -230,7 +245,8 @@ export function mapStateToProps(state: StoreState) {
   return {
     session: state.session,
     messageDatas: state.messageDatas,
-    conversationStarted: state.conversationStarted
+    conversationStarted: state.conversationStarted,
+    accessToken: state.accessToken
   }
 }
 
@@ -240,7 +256,8 @@ export function mapDispatchToProps(dispatch: Dispatch<actions.BotAction>) {
     onBotResponse: (messageData: MessageData) => dispatch(actions.botResponse(messageData)),
     startConversation: () => dispatch(actions.conversationStart()),
     onBotReset: () => dispatch(actions.BotReset()),
-    onBotInterrupt: () => dispatch(actions.BotInterrupted())
+    onBotInterrupt: () => dispatch(actions.BotInterrupted()),
+    onAccessTokenUpdate: (accessToken: AccessToken) => dispatch(actions.accessTokenUpdate(accessToken))
   };
 }
 
