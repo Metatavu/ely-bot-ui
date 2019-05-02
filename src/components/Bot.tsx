@@ -8,6 +8,7 @@ import { StoreState, MessageData, AccessToken } from "../types/index";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import Auth from "src/utils/Auth";
+import MessageInput from "./MessageInput";
 
 /**
  * Component props
@@ -36,7 +37,7 @@ interface State {
   quickResponses: string[],
   hint?: string,
   pendingMessages: MessageData[]
-
+  waitingForBot: boolean
 }
 
 class Bot extends React.Component<Props, State> {
@@ -47,7 +48,8 @@ class Bot extends React.Component<Props, State> {
     super(props);
     this.state = {
       quickResponses: [],
-      pendingMessages: []
+      pendingMessages: [],
+      waitingForBot: false
     };
   }
 
@@ -61,21 +63,32 @@ class Bot extends React.Component<Props, State> {
 
   public render = () => {
     return (
-      <Grid centered>
+      <Grid centered className="bot-grid">
         { !this.state.session ? (
           <div>
             <Loader active size="medium" />
           </div>
         ) : (
-          <MessageList 
-            conversationStarted={ this.props.conversationStarted } 
-            messageDatas={ this.props.messageDatas || [] }
-            hint={ this.state.hint || "Say something..." }
-            quickResponses={ this.state.quickResponses }
-            startConversation={ this.beginConversation }
-            onSendMessage={ this.sendMessage }
-            onReset={ this.resetBot }
-          />
+          <div>
+            <MessageList 
+              waitingForBot={ this.state.waitingForBot }
+              conversationStarted={ this.props.conversationStarted } 
+              messageDatas={ this.props.messageDatas || [] }
+              quickResponses={ this.state.quickResponses }
+              startConversation={ this.beginConversation }
+              onSendMessage={ this.sendMessage }
+              onReset={ this.resetBot }
+              onWaitingForBotChange={ this.onWaitingForBotChange }
+            />
+            <MessageInput
+              waitingForBot={ this.state.waitingForBot }
+              hint={ this.state.hint || "Sano jotain..." }
+              onSendMessage={ this.sendMessage }
+              conversationStarted={ this.props.conversationStarted } 
+              onReset={ this.resetBot }
+              onRestartConversation={ this.restartConversation }
+            />
+          </div>
         )}
       </Grid>
     );
@@ -96,6 +109,13 @@ class Bot extends React.Component<Props, State> {
     }
 
     this.props.onBotResponse && this.props.onBotResponse(message);
+
+    if (pendingMessages.length > 0) {
+      this.setState({
+        waitingForBot: true 
+      });
+    }
+
     if (pendingMessages.length > 0) {
       await this.waitAsync(700);
 
@@ -103,6 +123,10 @@ class Bot extends React.Component<Props, State> {
         id: `temp-${message.id}`,
         isBot: true,
         content: ""
+      });
+    } else {
+      this.setState({
+        waitingForBot: false 
       });
     }
 
@@ -238,6 +262,16 @@ class Bot extends React.Component<Props, State> {
 
   private resetBot = () => {
     this.props.onBotReset && this.props.onBotReset();
+  }
+
+  private restartConversation = () => {
+    this.sendMessage("Aloita alusta");
+  }
+
+  private onWaitingForBotChange = (waitingForBot: boolean) => {
+    this.setState({
+      waitingForBot: waitingForBot 
+    });
   }
 }
 

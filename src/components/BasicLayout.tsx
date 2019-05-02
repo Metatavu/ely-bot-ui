@@ -11,7 +11,7 @@ class BasicLayout extends React.Component {
     return (
       <div>
         <MenuContainer siteLogo={logo} />
-          <Container style={{ marginTop: "7em", paddingBottom: "7em" }}>
+          <Container>
             {this.props.children}
           </Container>
       </div>
