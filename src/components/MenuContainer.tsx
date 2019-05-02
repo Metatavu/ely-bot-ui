@@ -1,16 +1,13 @@
 import * as React from "react";
-import {
-  Container,
-  Image,
-  Menu
-} from "semantic-ui-react"
+import { Container, Image, Menu } from "semantic-ui-react"
+import '../styles/menu.css';
 
 export interface Props {
   siteLogo: string
 }
 
 class MenuContainer extends React.Component<Props, object> {
-  render() {
+  public render() {
     return (
       <Menu fixed="top" inverted>
         <Container>

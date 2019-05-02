@@ -1,0 +1,120 @@
+.message-list {
+  padding-top: 100px;
+}
+
+.user-message {
+  animation-timing-function: 'easeInOutBack';
+  margin-left: 10px;
+  border-radius: 50px;
+  color: #000;
+  background: #e8ebf3;
+  display: inline-block; 
+  font-size: 12px; 
+  padding: 26px 36px; 
+  min-height: 17px;
+}
+
+.bot-response,
+.bot-typing {
+  animation-timing-function: 'easeInOutBack';
+  margin-left: 10px;
+  border-radius: 50px;
+  color: #000;
+  background: #e8ebf3;
+  display: inline-block; 
+  font-size: 12px; 
+  padding: 26px 36px; 
+  min-height: 17px;
+
+  &::after {
+    content: '';
+    display: block;
+    background: url("../gfx/bubble-arrow.png");
+    width: 40px;
+    height: 10px;
+    position: absolute;
+    left: 0;
+    bottom: 22px;
+  }
+
+}
+
+.bot-response-container {
+  position: relative;
+
+  &::before {
+    content: '';
+    display: block;
+    background: url("../gfx/elykasbot.png");
+    width: 58px;
+    height: 63px;
+    position: absolute;
+    margin-left: -(58px + 8px);
+    bottom: 0;
+  }
+}
+
+.quick-reply-items {
+  padding-bottom: 100px;
+
+  button.quick-reply-item {
+    background: #1446a2;
+    color: #fff;
+    padding: 22px 30px;
+    border-radius: 50px;
+    font-size: 13px;
+
+    &:hover {
+      color: #fff;
+      background: #1056d6;
+    }
+    
+  }
+
+}
+
+.ui.input.message-input input {
+  border-color: #1446a2;
+  border-radius: 50px;
+  color: #1446a2;
+  padding: 22px 28px;
+  font-size: 14px;
+
+  &::placeholder {
+    color: #1446a2;
+  }
+}
+
+.ui.button.message-send {
+  position: absolute;
+  top: 0;
+  right: 28px;
+  bottom: 0;
+  background-color: transparent;
+  background-position: center center;
+  background-image: url("../gfx/send-button.png");
+  background-repeat: no-repeat;
+  width: 30px;
+}
+
+.ui.button.restart-conversation {
+  color: #4ec9f5;
+  background: #fff;
+  float: left;
+
+  &:hover {
+    color: #1056d6;
+  }
+}
+
+.powered-by {
+  color: #aeb3d0;
+  float: right;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 12px;
+
+  &:hover {
+    color: #aeb3d0;
+  }
+}

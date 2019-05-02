@@ -2,20 +2,11 @@ import * as React from "react";
 import * as _ from "lodash";
 import Typing from "./Typing";
 import Lightbox from 'react-image-lightbox';
-import {
-  Button,
-  Grid,
-  Segment,
-  Input,
-  InputOnChangeData,
-  Container,
-  Icon,
-  Popup,
-  Transition,
-} from "semantic-ui-react";
+import { Button, Grid, Segment, Input, InputOnChangeData, Container, Transition } from "semantic-ui-react";
 
 import 'react-image-lightbox/style.css';
 import { MessageData } from "../types";
+import '../styles/message-list.css'
 
 export interface Props {
   messageDatas: MessageData[],
@@ -155,30 +146,11 @@ class MessageList extends React.Component<Props, State> {
             <Grid.Column className="bot-response-container" onClick={this.handleResponseClick} floated="left" style={{paddingLeft: "0", color: "#fff"}}>
               { messageData.content ? 
               <Transition transitionOnMount={true} visible={true} animation="pulse" duration={200}>
-                <div 
-                  style={{
-                    animationTimingFunction: "easeInOutBack",
-                    marginLeft: "10px",
-                    borderRadius: "10px",
-                    background: "rgb(0,56,131)",
-                    display: "inline-block", 
-                    fontSize: "16px", 
-                    padding: "18px"
-                  }}
-                  dangerouslySetInnerHTML={{__html: messageData.content}}
-                />
-              </Transition> : <Transition transitionOnMount={true} visible={true} animation="slide down" duration={100}>
-                <div 
-                  style={{
-                    marginLeft: "10px",
-                    borderRadius: "10px",
-                    background: "rgb(0,56,131)",
-                    display: "inline-block", 
-                    fontSize: "16px", 
-                    padding: "18px"
-                  }}> 
-                    <Typing/>
-                  </div>
+                <div className="bot-response" dangerouslySetInnerHTML={{__html: messageData.content}} />
+              </Transition> : <Transition transitionOnMount={true} visible={true} animation="pulse" duration={100}>
+                <div className="bot-typing">
+                  <Typing/>
+                </div>
                 </Transition>
               }
             </Grid.Column>
@@ -190,20 +162,7 @@ class MessageList extends React.Component<Props, State> {
           <Grid.Row style={{paddingTop: "25px", paddingBottom: "25px"}} key={messageData.id} verticalAlign="middle" textAlign="right" columns="equal">
             <Grid.Column mobile={2} width={4} floated="left" />
             <Grid.Column style={{paddingRight: "45px", color: "#fff"}} floated="right">
-            { messageData.content !== "INIT" ? (
-              <div 
-                style={{
-                  borderRadius: "10px", 
-                  background: "#e0e1e2",
-                  color: "rgba(0,0,0,.6)",
-                  display: "inline-block", 
-                  fontSize: "16px", 
-                  padding: "18px"
-                }} 
-                dangerouslySetInnerHTML={{__html: messageData.content}}
-                />
-
-            ) : ""}
+            { messageData.content !== "INIT" ? (<div className="user-message" dangerouslySetInnerHTML={{__html: messageData.content}} />) : ""}
             </Grid.Column>
           </Grid.Row>
         )
@@ -212,48 +171,50 @@ class MessageList extends React.Component<Props, State> {
 
     const quickReplyItems = this.props.quickResponses.map((quickReply: string) => {
       return (
-        <Button disabled={this.state.waitingForBot} style={{marginTop: "5px"}} key={quickReply} size="mini" floated="left" compact onClick={() => {this.sendQuickReply(quickReply)}} >{quickReply}</Button>
+        <Button disabled={this.state.waitingForBot} className="quick-reply-item" key={quickReply} onClick={() => {this.sendQuickReply(quickReply)}} >{quickReply}</Button>
       )
     });
 
     return (
       <div>
         {this.state.imageOpen && <Lightbox mainSrc={this.state.clickedImageUrl || ""} onCloseRequest={() => this.setState({ imageOpen: false })} />}
-          <div style={{paddingTop: "100px"}}>
+          <div className="message-list">
             <div style={window.innerWidth > 650 ? {width: "600px", paddingBottom: "50px"} : {maxWidth: "600px", paddingBottom: "50px"} }>
               <Grid style={{width: "100%"}}>
                 {messageItems}
               </Grid>
             </div>
             { this.props.quickResponses.length > 0 && !this.state.waitingForBot &&
-              <div style={{paddingBottom: "5px", position: "fixed", left: "10px", bottom: "79px"}}>
-                {quickReplyItems}
+              <div className="quick-reply-items">
+                { quickReplyItems }
               </div>
             }
-            <Segment loading={!this.props.conversationStarted} inverted style={{position: "fixed", bottom: "0", left: "0", right: "0"}}>
+            <Segment loading={!this.props.conversationStarted} style={{position: "fixed", bottom: "0", left: "0", right: "0"}}>
               <Container>
                 <Grid>
                   <Grid.Row verticalAlign="middle" columns="equal">
-                    <Grid.Column style={{paddingLeft: "0"}} width={1}>
-                      <Popup
-                        trigger={<Icon style={{color: "#fff"}} name="ellipsis vertical" />}
-                        content={<Button style={{background: "rgb(0, 56,131)", color: "#fff"}} onClick={() => this.addNewMessage("Aloita alusta")}>Aloita alusta</Button>}
-                        on='click'
-                        position='top center'
-                      />
-                    </Grid.Column>
                     <Grid.Column style={{paddingRight: "15px"}}>
                       <Input
+                        className="message-input"
                         placeholder={ this.props.hint }
                         value={this.state.pendingMessage}
                         onChange={this.onPendingMessageChange}
                         onKeyPress={this.handleInputKeyPress}
                         onFocus={() => {setTimeout(this.scrollToBottom, 300)}}
-                        fluid 
-                        inverted />
+                        fluid  />
+                      <Button className="message-send" disabled={this.state.waitingForBot} onClick={this.onSendButtonClick}></Button>
                     </Grid.Column>
-                    <Grid.Column style={{paddingLeft: "0"}} textAlign="left" mobile={3} computer={2} width={2}>
-                      <Button style={{background: "rgb(0, 56,131)", color: "#fff"}} disabled={this.state.waitingForBot} onClick={this.onSendButtonClick} size="huge" icon="send" circular></Button>
+                  </Grid.Row>
+                  <Grid.Row>
+                    <Grid.Column>
+                      <Button className="restart-conversation" onClick={() => this.addNewMessage("Aloita alusta")}>Aloita alusta</Button>
+                    </Grid.Column>
+                  </Grid.Row>
+                  <Grid.Row>
+                    <Grid.Column>
+                      <a className="powered-by" target="_blank" href="https://www.metamind.fi">
+                        Powered by Metamind, a chatbot from Metatavu Oy
+                      </a>
                     </Grid.Column>
                   </Grid.Row>
                 </Grid>
