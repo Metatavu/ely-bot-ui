@@ -10,6 +10,8 @@ import { Dispatch } from "redux";
 import Auth from "src/utils/Auth";
 import MessageInput from "./MessageInput";
 
+const LETTERS_PER_SECOND = 40;
+
 /**
  * Component props
  */
@@ -35,6 +37,7 @@ interface Props {
 interface State {
   session?: Session,
   quickResponses: string[],
+  globalQuickResponses: string[],
   hint?: string,
   pendingMessages: MessageData[]
   waitingForBot: boolean
@@ -49,18 +52,18 @@ class Bot extends React.Component<Props, State> {
     this.state = {
       quickResponses: [],
       pendingMessages: [],
-      waitingForBot: false
+      waitingForBot: false,
+      globalQuickResponses: [ ]
     };
   }
 
-  public componentDidMount() {
-    this.getSession();
+  /**
+   * Component did mount life-cycle event
+   */
+  public async componentDidMount() {
+    await this.loadData();
   }
-
-  public componentDidUpdate(prevProps: Props) {
-    this.getSession();
-  }
-
+  
   public render = () => {
     return (
       <Grid centered className="bot-grid">
@@ -69,7 +72,7 @@ class Bot extends React.Component<Props, State> {
             <Loader active size="medium" />
           </div>
         ) : (
-          <div>
+          <div className="view-wrapper">
             <MessageList 
               waitingForBot={ this.state.waitingForBot }
               conversationStarted={ this.props.conversationStarted } 
@@ -82,6 +85,7 @@ class Bot extends React.Component<Props, State> {
             />
             <MessageInput
               waitingForBot={ this.state.waitingForBot }
+              globalQuickResponses={ this.state.globalQuickResponses }
               hint={ this.state.hint || "Sano jotain..." }
               onSendMessage={ this.sendMessage }
               conversationStarted={ this.props.conversationStarted } 
@@ -116,8 +120,10 @@ class Bot extends React.Component<Props, State> {
       });
     }
 
+    const wait = message.content.length / LETTERS_PER_SECOND * 1000;
+
     if (pendingMessages.length > 0) {
-      await this.waitAsync(700);
+      await this.waitAsync(wait);
 
       this.props.onBotResponse && this.props.onBotResponse({
         id: `temp-${message.id}`,
@@ -132,7 +138,7 @@ class Bot extends React.Component<Props, State> {
 
     this.pendingMessageTimer = setTimeout(() => {
       this.messageQueueProgress();
-    }, 500 + (Math.random() * 1000));
+    }, 500);
   }
   
   private sendMessage = async (messageContent: string) => {
@@ -140,18 +146,16 @@ class Bot extends React.Component<Props, State> {
       return;
     }
 
-    const session = await this.getSession();
-
     const message = await Api.getMessagesService(this.props.accessToken.access_token).createMessage({
       content: messageContent,
-      sessionId: session.id!,
+      sessionId: this.state.session.id!,
       sourceKnotId: ""
     }, this.props.storyId);
 
     await this.processBotResponse(message);
   }
 
-  private async getSession(): Promise<Session> {
+  private async loadData(): Promise<Session> {
     if (this.state.session) {
       return this.state.session;
     }
@@ -168,6 +172,11 @@ class Bot extends React.Component<Props, State> {
       return Promise.reject();
     }
 
+    const story = await Api.getStoriesService(accessToken.access_token).findStory(this.props.storyId);
+    this.setState({
+      globalQuickResponses: story.quickResponses || []
+    });
+    
     const session = await Api.getSessionsService(accessToken.access_token).createSession({
       locale: this.props.locale,
       timeZone: this.props.timeZone,

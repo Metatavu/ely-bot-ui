@@ -3,12 +3,13 @@ import * as _ from "lodash";
 import { Button, Grid, Input, InputOnChangeData, Container } from "semantic-ui-react";
 
 import 'react-image-lightbox/style.css';
-import '../styles/message-list.css'
+import '../styles/message-input.css'
 
 export interface Props {
   conversationStarted: boolean,
   waitingForBot: boolean,
   hint: string,
+  globalQuickResponses: string[],
   onSendMessage: (messageContent: string) => void,
   onReset: () => void,
   onRestartConversation: () => void
@@ -48,12 +49,12 @@ class MessageInput extends React.Component<Props, State> {
                   <Button className="message-send" disabled={this.props.waitingForBot} onClick={this.onSendButtonClick}></Button>
                 </Grid.Column>
               </Grid.Row>
-              <Grid.Row>
+              <Grid.Row style={{ paddingBottom: 0 }}>
                 <Grid.Column>
-                  <Button className="restart-conversation" onClick={() => this.props.onRestartConversation()}>Aloita alusta</Button>
+                  { this.renderGlobalQuickResponses() }
                 </Grid.Column>
               </Grid.Row>
-              <Grid.Row>
+              <Grid.Row style={{ paddingTop: 0 }}>
                 <Grid.Column>
                   <a className="powered-by" target="_blank" href="https://www.metamind.fi">
                     Powered by Metamind - a chatbot from Metatavu Oy
@@ -63,6 +64,23 @@ class MessageInput extends React.Component<Props, State> {
             </Grid>
           </Container>
         </div>
+      </div>
+    );
+  }
+
+  /**
+   * Renders global quick responses
+   */
+  private renderGlobalQuickResponses = () => {
+    if (!this.props.globalQuickResponses.length) {
+      return null;
+    }
+
+    return (
+      <div className="global-quick-responses">
+        { this.props.globalQuickResponses.map((globalQuickResponse) => {
+          return <Button className="global-quick-response" onClick={() => this.props.onSendMessage(globalQuickResponse)}>{ globalQuickResponse }</Button>  
+        }) }
       </div>
     );
   }

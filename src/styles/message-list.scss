@@ -1,3 +1,5 @@
+@import "vars";
+
 body {
   overflow-y: hidden;
 }
@@ -135,10 +137,12 @@ body {
 
 }
 
+.view-wrapper {
+  margin-top: 100px;
+}
+
 .message-list-container {
-  padding-top: 20px;
-  margin-top: 75px;
-  height: calc(100vh - 75px - 175px);
+  height: calc(100vh - 75px - #{$message-input-height});
   overflow-y: scroll;
   margin-bottom: 20px;
  
@@ -146,60 +150,4 @@ body {
     position: relative;
   }
   
-}
-
-.message-input-container {
-  height: 175px;
-}
-
-.ui.input.message-input input {
-  border-color: #1446a2;
-  border-radius: 50px;
-  color: #1446a2;
-  padding: 22px 28px;
-  font-size: 14px;
-
-  &::placeholder {
-    color: #1446a2;
-  }
-}
-
-.ui.button.message-send {
-  position: absolute;
-  top: 0;
-  right: 28px;
-  bottom: 0;
-  background-color: transparent;
-  background-position: center center;
-  background-image: url("../gfx/send-button.png");
-  background-repeat: no-repeat;
-  width: 30px;
-}
-
-.ui.button.restart-conversation {
-  color: #4ec9f5;
-  background: #fff;
-  float: left;
-
-  &:hover {
-    color: #1056d6;
-  }
-
-  @media (max-width: 768px) {
-    text-align: center;
-    width: 100%;
-  }
-
-}
-
-.powered-by {
-  color: #aeb3d0;
-  float: right;
-  text-decoration: none;
-  cursor: pointer;
-  font-size: 12px;
-
-  &:hover {
-    color: #aeb3d0;
-  }
 }
