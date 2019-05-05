@@ -149,7 +149,14 @@ class MessageInput extends React.Component<Props, State> {
   /**
    * Event handler for window mouse down event
    */
-  private onWindowMousedown = () => {
+  private onWindowMousedown = (e: MouseEvent) => {
+    const target: Element = e.target as Element;
+    const targetClasses = (target.className || "").split(" ");
+    if (targetClasses.indexOf("global-quick-response") > -1) {
+      e.preventDefault();
+      return;
+    }
+
     this.setState({
       globalQuickResponsesMenuOpen: false
     });

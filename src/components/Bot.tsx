@@ -11,6 +11,7 @@ import Auth from "src/utils/Auth";
 import MessageInput from "./MessageInput";
 
 const LETTERS_PER_SECOND = 90;
+const MAX_WAIT = 2000;
 
 /**
  * Component props
@@ -120,7 +121,7 @@ class Bot extends React.Component<Props, State> {
       });
     }
 
-    const wait = message.content.length / LETTERS_PER_SECOND * 1000;
+    const wait = Math.min(message.content.length / LETTERS_PER_SECOND * 1000, MAX_WAIT);
 
     if (pendingMessages.length > 0) {
       await this.waitAsync(wait);
