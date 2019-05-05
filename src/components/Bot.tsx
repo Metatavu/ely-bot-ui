@@ -10,7 +10,7 @@ import { Dispatch } from "redux";
 import Auth from "src/utils/Auth";
 import MessageInput from "./MessageInput";
 
-const LETTERS_PER_SECOND = 40;
+const LETTERS_PER_SECOND = 90;
 
 /**
  * Component props
