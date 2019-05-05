@@ -1,9 +1,5 @@
 @import "vars";
 
-.global-quick-responses {
-  text-align: center;
-}
-
 .message-input-container {
   height: $message-input-height;
   overflow: hidden;
@@ -33,6 +29,11 @@
   width: 30px;
 }
 
+.global-quick-responses {
+  text-align: center;
+}
+
+.ui.button.global-quick-responses-open,
 .ui.button.global-quick-response,
 .ui.button.restart-conversation {
   color: #4ec9f5;
@@ -41,11 +42,6 @@
 
   &:hover {
     color: #1056d6;
-  }
-
-  @media (max-width: 768px) {
-    text-align: center;
-    width: 100%;
   }
 
 }
