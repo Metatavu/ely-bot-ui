@@ -3,7 +3,7 @@ import * as _ from "lodash";
 import Typing from "./Typing";
 import Lightbox from 'react-image-lightbox';
 import { Button, Grid, InputOnChangeData, Transition } from "semantic-ui-react";
-
+import { emojify } from "node-emoji"; 
 import 'react-image-lightbox/style.css';
 import { MessageData } from "../types";
 import '../styles/message-list.css'
@@ -146,7 +146,7 @@ class MessageList extends React.Component<Props, State> {
             <Grid.Column className="bot-response-container" onClick={this.handleResponseClick} style={{paddingLeft: "0", color: "#fff"}}>
               { messageData.content ? 
               <Transition transitionOnMount={true} visible={true} animation="pulse" duration={200}>
-                <div className="bot-response" dangerouslySetInnerHTML={{__html: messageData.content}} />
+                <div className="bot-response" dangerouslySetInnerHTML={{__html: emojify(messageData.content) }} />
               </Transition> : <Transition transitionOnMount={true} visible={true} animation="pulse" duration={100}>
                 <div className="bot-typing">
                   <Typing/>
