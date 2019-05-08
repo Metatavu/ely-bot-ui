@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@babel/polyfill": "^7.4.4",
+    "@types/query-string": "5.1.0",
     "@types/react-redux": "^7.0.6",
     "@types/react-router": "^4.4.5",
     "add": "^2.0.6",
