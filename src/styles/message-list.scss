@@ -142,6 +142,7 @@ body {
 }
 
 .message-list-container {
+  max-width: 1127px;
   height: calc(100vh - 75px - #{$message-input-height});
   overflow-y: scroll;
   margin-bottom: 20px;

@@ -133,7 +133,7 @@ class MessageInput extends React.Component<Props, State> {
     return (
       <div className="global-quick-responses">
         { this.props.globalQuickResponses.map((globalQuickResponse) => {
-          return <Button className="global-quick-response" onClick={() => this.onGlobalQuickResponseClick(globalQuickResponse)}>{ globalQuickResponse }</Button>  
+          return <Button key={globalQuickResponse} className="global-quick-response" onClick={() => this.onGlobalQuickResponseClick(globalQuickResponse)}>{ globalQuickResponse }</Button>  
       }) }
     </div>)
   }
